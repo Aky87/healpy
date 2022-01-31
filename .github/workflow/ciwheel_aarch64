@@ -33,13 +33,13 @@ jobs:
      matrix:
         os: [ 'ubuntu-latest']
         arch: [aarch64]
-        cibw_python: [ 'cp36-*', 'cp37-*', 'cp38-*', 'cp39-*', 'cp310-*' ]
+        cibw_python: [ 'cp38-*', 'cp39-*', 'cp310-*' ]
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: true
       - uses: docker/setup-qemu-action@v1
-        if: runner.os == 'Linux'
+        if: runner.os == 'ubuntu-latest'
         name: Set up QEMU
         
       
