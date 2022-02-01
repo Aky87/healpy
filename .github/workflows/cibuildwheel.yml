@@ -31,14 +31,15 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest]
-        arch: [aarch64]
+        os: [ubuntu-latest, macos-latest]
+        arch: [x86_64, aarch64]
         cibw_python: [ 'cp37-*','cp38-*', 'cp39-*', 'cp310-*' ]
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: true
       - name: Set up QEMU
+        if: runner.arch == 'aarch64'
         id: qemu
         uses: docker/setup-qemu-action@v1
 
@@ -50,7 +51,7 @@ jobs:
         run: |
           python -m cibuildwheel --output-dir wheelhouse
         env:
-          CIBW_ARCHS_LINUX: ${{ matrix.arch }}
+          CIBW_ARCHS: ${{ matrix.arch }}
           CIBW_BUILD: ${{ matrix.cibw_python }}
       - uses: actions/upload-artifact@v2
         with:
@@ -58,9 +59,9 @@ jobs:
 
   publish:
     name: Publish to PyPI
-    runs-on: ubuntu-latest
+    runs-on: [ubuntu-latest, macos-latest]
     needs: [source, wheels]
-    if: github.event_name == 'release'
+    
 
     steps:
       - uses: actions/download-artifact@v2
