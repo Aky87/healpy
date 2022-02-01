@@ -26,8 +26,8 @@ jobs:
         with:
           path: dist/*
           
-  wheels:
-    name: Build binary package
+  wheelsforamd:
+    name: Build binary packages
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -45,8 +45,9 @@ jobs:
         with:
           path: wheelhouse/*
           
-  wheels_aarch64:
-    name: Build binary packages for aarch_64
+          
+  wheelsforarm:        
+    name: Build binary package
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -79,7 +80,7 @@ jobs:
   publish:
     name: Publish to PyPI
     runs-on: [ubuntu-latest]
-    needs: [source, wheels]
+    needs: [source, wheelsforamd, wheelsforarm]
     
 
     steps:
