@@ -26,59 +26,50 @@ jobs:
         with:
           path: dist/*
           
-  wheelsforamd:
+  wheels:
     name: Build binary packages
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-
-      - name: Build wheels
-        uses: pypa/cibuildwheel@v2.3.1
-
-      - uses: actions/upload-artifact@v2
-        with:
-          path: wheelhouse/*
-          
-          
-  wheelsforarm:        
-    name: Build binary package
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        arch: [aarch64]
+        arch: [aarch64, x86_64]
         cibw_python: [ 'cp36-*','cp37-*','cp38-*', 'cp39-*', 'cp310-*' ]
+        exclude:
+        - os: 'macos-latest'
+          arch: 'aarch64'
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: true
       - name: Set up QEMU
+        if: ${{ matrix.arch == 'aarch64' }}
         id: qemu
         uses: docker/setup-qemu-action@v1
- 
       - name: Install cibuildwheel
         run: |
           python -m pip install --upgrade cibuildwheel
       - name: Build wheels
+        if: ${{ matrix.arch == 'aarch64' }}
         run: |
           python -m cibuildwheel --output-dir wheelhouse
         env:
           CIBW_ARCHS_LINUX: ${{ matrix.arch }}
+          CIBW_BUILD: ${{ matrix.cibw_python }}  
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.3.1
+        env:
+          CIBW_ARCHS_LINUX: ${{ matrix.arch }}
+          CIBW_ARCHS_MACOS: ${{ matrix.arch }}
           CIBW_BUILD: ${{ matrix.cibw_python }}
+          
       - uses: actions/upload-artifact@v2
         with:
           path: wheelhouse/*
-
+          
   publish:
     name: Publish to PyPI
     runs-on: [ubuntu-latest]
-    needs: [source, wheelsforamd, wheelsforarm]
+    needs: [source, wheels]
     
 
     steps:
