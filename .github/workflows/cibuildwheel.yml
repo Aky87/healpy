@@ -33,9 +33,11 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
         arch: [auto]
+        cibw_python: [ 'cp37-*', 'cp38-*', 'cp39-*', 'cp310-*' ]
         include:
         - os: 'ubuntu-latest'
           arch: 'aarch64'
+          
     steps:
       - uses: actions/checkout@v2
         with:
@@ -49,10 +51,12 @@ jobs:
           python -m pip install --upgrade cibuildwheel
  
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.3.1
+        run: |
+          python -m cibuildwheel --output-dir wheelhouse
         env:
           CIBW_ARCHS_LINUX: ${{ matrix.arch }}
-          CIBW_ARCHS_MACOS: ${{ matrix.arch }}   
+          CIBW_ARCHS_MACOS: ${{ matrix.arch }} 
+          CIBW_BUILD: ${{ matrix.cibw_python }}
       - uses: actions/upload-artifact@v2
         with:
           path: wheelhouse/*
