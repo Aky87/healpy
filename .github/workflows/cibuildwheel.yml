@@ -51,7 +51,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest]
         arch: [aarch64]
         cibw_python: [ 'cp36-*','cp37-*','cp38-*', 'cp39-*', 'cp310-*' ]
     steps:
@@ -61,8 +61,7 @@ jobs:
       - name: Set up QEMU
         id: qemu
         uses: docker/setup-qemu-action@v1
-
-        
+ 
       - name: Install cibuildwheel
         run: |
           python -m pip install --upgrade cibuildwheel
@@ -71,7 +70,6 @@ jobs:
           python -m cibuildwheel --output-dir wheelhouse
         env:
           CIBW_ARCHS_LINUX: ${{ matrix.arch }}
-          CIBW_ARCHS_MACOS: ${{ matrix.arch }}
           CIBW_BUILD: ${{ matrix.cibw_python }}
       - uses: actions/upload-artifact@v2
         with:
